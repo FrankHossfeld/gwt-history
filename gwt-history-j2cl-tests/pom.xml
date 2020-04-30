@@ -10,7 +10,7 @@
   </parent>
   <artifactId>gwt-history-j2cl-tests</artifactId>
 
-  <name>GWT Window J2CL Tests</name>
+  <name>GWT History J2CL Tests</name>
   <description>Test cases for the J2Cl tests</description>
   <url>https://github.com/gwtproject/gwt-history</url>
 
@@ -28,6 +28,7 @@
     <vertispan.j2cl.repo.url>https://repo.vertispan.com/j2cl/</vertispan.j2cl.repo.url>
 
     <elemental2.version>1.0.0-RC1</elemental2.version>
+    <gwt.timer.version>1.0-SNAPSHOT</gwt.timer.version>
     <j2cl.version>0.7-SNAPSHOT</j2cl.version>
   </properties>
 
@@ -43,6 +44,13 @@
       <groupId>com.google.elemental2</groupId>
       <artifactId>elemental2-dom</artifactId>
       <version>${elemental2.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.gwtproject.timer</groupId>
+      <artifactId>gwt-timer</artifactId>
+      <version>${gwt.timer.version}</version>
       <scope>test</scope>
     </dependency>
 

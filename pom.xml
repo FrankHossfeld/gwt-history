@@ -10,7 +10,7 @@
 
   <packaging>pom</packaging>
 
-  <name>GWT Window Parent</name>
+  <name>GWT History Parent</name>
   <description>Parent POM containing the gwt-history module and the test modules (gwt2-tests and j2cl-tests)</description>
   <url>https://github.com/gwtproject/gwt-history</url>
 

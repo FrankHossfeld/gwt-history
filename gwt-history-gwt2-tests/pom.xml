@@ -11,7 +11,7 @@
   <artifactId>gwt-history-gwt2-tests</artifactId>
   <packaging>gwt-lib</packaging>
 
-  <name>GWT Window GWT 2 Tests</name>
+  <name>GWT History GWT 2 Tests</name>
   <description>Test cases for the GWT 2 tests</description>
 
   <properties>
@@ -27,6 +27,7 @@
     <google.snapshot.repo.url>https://oss.sonatype.org/content/repositories/google-snapshots/</google.snapshot.repo.url>
 
     <elemental2.version>1.0.0-RC1</elemental2.version>
+    <gwt.event.logical.version>1.0-SNAPSHOT</gwt.event.logical.version>
     <gwt.version>2.8.2</gwt.version>
     <junit.version>4.12</junit.version>
   </properties>
@@ -42,6 +43,13 @@
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-dev</artifactId>
       <version>${gwt.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.gwtproject.event</groupId>
+      <artifactId>gwt-event-logical</artifactId>
+      <version>${gwt.event.logical.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -77,6 +85,11 @@
         <configuration>
           <failOnError>true</failOnError>
           <moduleName>org.gwtproject.history.historyGwtSuite</moduleName>
+          <testArgs>
+            <testArg>-runStyle</testArg>
+            <testArg>HtmlUnit:Chrome</testArg>
+<!--            <testArg>Manuell:1</testArg>-->
+          </testArgs>
         </configuration>
       </plugin>
       <plugin>

@@ -15,16 +15,16 @@
  */
 package org.gwtproject.user.history.client;
 
+import static elemental2.core.Global.decodeURI;
+import static elemental2.core.Global.encodeURI;
+import static elemental2.dom.DomGlobal.window;
+
 import org.gwtproject.event.logical.shared.HasValueChangeHandlers;
 import org.gwtproject.event.logical.shared.ValueChangeEvent;
 import org.gwtproject.event.logical.shared.ValueChangeHandler;
 import org.gwtproject.event.shared.Event;
 import org.gwtproject.event.shared.HandlerRegistration;
 import org.gwtproject.event.shared.SimpleEventBus;
-
-import static elemental2.core.Global.decodeURI;
-import static elemental2.core.Global.encodeURI;
-import static elemental2.dom.DomGlobal.window;
 
 /**
  * This class allows you to interact with the browser's history stack. Each "item" on the stack is
@@ -37,9 +37,9 @@ import static elemental2.dom.DomGlobal.window;
  * #addValueChangeHandler(ValueChangeHandler)}.
  *
  * <h3>URL Encoding</h3>
- * <p>
- * Any valid characters may be used in the history token and will survive round-trips through {@link
- * #newItem(String)} to {@link #getToken()}/ {@link
+ *
+ * <p>Any valid characters may be used in the history token and will survive round-trips through
+ * {@link #newItem(String)} to {@link #getToken()}/ {@link
  * ValueChangeHandler#onValueChange(org.gwtproject.event.logical.shared.ValueChangeEvent)} , but
  * most will be encoded in the user-visible URL. The following US-ASCII characters are not encoded
  * on any currently supported browser (but may be in the future due to future browser changes):
@@ -52,24 +52,23 @@ import static elemental2.dom.DomGlobal.window;
  * </ul>
  */
 public class History {
-  
-  private static final HistoryEventSource  historyEventSource = new HistoryEventSource();
+
+  private static final HistoryEventSource historyEventSource = new HistoryEventSource();
   // XXX: use 2-args overload of System.getProperty to not fail compilation is property is not
   // defined.
   @SuppressWarnings(
       "ReferenceEquality") // '==' makes it compile out faster (we're in client-only code)
-  private static final HistoryTokenEncoder tokenEncoder       =
-      System.getProperty("history.noDoubleEncoding",
-                         null) == "true"
-      ? new NoopHistoryTokenEncoder()
-      : new HistoryTokenEncoder();
+  private static final HistoryTokenEncoder tokenEncoder =
+      System.getProperty("history.noDoubleEncoding", null) == "true"
+          ? new NoopHistoryTokenEncoder()
+          : new HistoryTokenEncoder();
+
   private static String token = getDecodedHash();
-  
+
   static {
-    window.addEventListener("hashchange",
-                            evt -> onHashChanged());
+    window.addEventListener("hashchange", evt -> onHashChanged());
   }
-  
+
   /**
    * Adds a {@link org.gwtproject.event.logical.shared.ValueChangeEvent} handler to be informed of
    * changes to the browser's history stack.
@@ -81,20 +80,16 @@ public class History {
     return historyEventSource.addValueChangeHandler(handler);
   }
 
-  /**
-   * Programmatic equivalent to the user pressing the browser's 'back' button.
-   */
+  /** Programmatic equivalent to the user pressing the browser's 'back' button. */
   public static void back() {
     window.history.back();
   }
-  
-  /**
-   * Programmatic equivalent to the user pressing the browser's 'forward' button.
-   */
+
+  /** Programmatic equivalent to the user pressing the browser's 'forward' button. */
   public static void forward() {
     window.history.forward();
   }
-  
+
   /**
    * Adds a new browser history entry. Calling this method will cause {@link
    * ValueChangeHandler#onValueChange(org.gwtproject.event.logical.shared.ValueChangeEvent)} to be
@@ -103,22 +98,20 @@ public class History {
    * @param historyToken the token to associate with the new history item
    */
   public static void newItem(String historyToken) {
-    newItem(historyToken,
-            true);
+    newItem(historyToken, true);
   }
-  
+
   /**
    * Adds a new browser history entry. Calling this method will cause {@link
    * ValueChangeHandler#onValueChange(org.gwtproject.event.logical.shared.ValueChangeEvent)} to be
    * called as well if and only if issueEvent is true.
    *
    * @param historyToken the token to associate with the new history item
-   * @param issueEvent   true if a {@link
-   *                     ValueChangeHandler#onValueChange(org.gwtproject.event.logical.shared.ValueChangeEvent)}
-   *                     event should be issued
+   * @param issueEvent true if a {@link
+   *     ValueChangeHandler#onValueChange(org.gwtproject.event.logical.shared.ValueChangeEvent)}
+   *     event should be issued
    */
-  public static void newItem(String historyToken,
-                             boolean issueEvent) {
+  public static void newItem(String historyToken, boolean issueEvent) {
     historyToken = (historyToken == null) ? "" : historyToken;
     if (!historyToken.equals(getToken())) {
       token = historyToken;
@@ -129,7 +122,7 @@ public class History {
       }
     }
   }
-  
+
   /**
    * Gets the current history token. The handler will not receive a {@link
    * ValueChangeHandler#onValueChange(org.gwtproject.event.logical.shared.ValueChangeEvent)} event
@@ -142,7 +135,7 @@ public class History {
   public static String getToken() {
     return token;
   }
-  
+
   /**
    * Encode a history token for use as part of a URI.
    *
@@ -152,11 +145,11 @@ public class History {
   public static String encodeHistoryToken(String historyToken) {
     return tokenEncoder.encode(historyToken);
   }
-  
+
   private static void newToken(String historyToken) {
     window.location.setHash(historyToken);
   }
-  
+
   /**
    * Replace the current history token on top of the browsers history stack.
    *
@@ -167,10 +160,9 @@ public class History {
    * @param historyToken history token to replace current top entry
    */
   public static void replaceItem(String historyToken) {
-    replaceItem(historyToken,
-                true);
+    replaceItem(historyToken, true);
   }
-  
+
   /**
    * Replace the current history token on top of the browsers history stack.
    *
@@ -179,19 +171,18 @@ public class History {
    * called as well if and only if issueEvent is true.
    *
    * @param historyToken history token to replace current top entry
-   * @param issueEvent   issueEvent true if a {@link
-   *                     ValueChangeHandler#onValueChange(org.gwtproject.event.logical.shared.ValueChangeEvent)}
-   *                     event should be issued
+   * @param issueEvent issueEvent true if a {@link
+   *     ValueChangeHandler#onValueChange(org.gwtproject.event.logical.shared.ValueChangeEvent)}
+   *     event should be issued
    */
-  public static void replaceItem(String historyToken,
-                                 boolean issueEvent) {
+  public static void replaceItem(String historyToken, boolean issueEvent) {
     token = historyToken;
     window.location.replace("#" + encodeHistoryToken(historyToken));
     if (issueEvent) {
       fireCurrentHistoryState();
     }
   }
-  
+
   /**
    * Fire {@link
    * ValueChangeHandler#onValueChange(org.gwtproject.event.logical.shared.ValueChangeEvent)} events
@@ -202,7 +193,7 @@ public class History {
     String currentToken = getToken();
     historyEventSource.fireValueChangedEvent(currentToken);
   }
-  
+
   private static void onHashChanged() {
     /*
      * We guard against firing events twice, some browser (e.g. safari) tend to
@@ -214,7 +205,7 @@ public class History {
       historyEventSource.fireValueChangedEvent(hashToken);
     }
   }
-  
+
   private static String getDecodedHash() {
     String hashToken = window.location.getHash();
     if (hashToken == null || hashToken.isEmpty()) {
@@ -222,71 +213,53 @@ public class History {
     }
     return tokenEncoder.decode(hashToken.substring(1));
   }
-  
 
+  private static class HistoryEventSource implements HasValueChangeHandlers<String> {
 
-  private static class HistoryEventSource
-      implements HasValueChangeHandlers<String> {
-    
     private final SimpleEventBus handlers = new SimpleEventBus();
-    
+
     @Override
     public void fireEvent(Event<?> event) {
       handlers.fireEvent(event);
     }
-    
+
     @Override
     public HandlerRegistration addValueChangeHandler(ValueChangeHandler<String> handler) {
-      return handlers.addHandler(ValueChangeEvent.getType(),
-                                 handler);
+      return handlers.addHandler(ValueChangeEvent.getType(), handler);
     }
-    
-    public void fireValueChangedEvent(String newToken) {
-      ValueChangeEvent.fire(this,
-                            newToken);
-    }
-    
-  }
-  
 
+    public void fireValueChangedEvent(String newToken) {
+      ValueChangeEvent.fire(this, newToken);
+    }
+  }
 
   /**
    * HistoryTokenEncoder is responsible for encoding and decoding history token, thus ensuring that
    * tokens are safe to use in the browsers URL.
    */
   private static class HistoryTokenEncoder {
-    
+
     String encode(String toEncode) {
       // encodeURI() does *not* encode the '#' character.
-      return encodeURI(toEncode).replace("#",
-                                         "%23");
+      return encodeURI(toEncode).replace("#", "%23");
     }
-    
+
     String decode(String toDecode) {
-      return decodeURI(toDecode.replace("%23",
-                                        "#"));
+      return decodeURI(toDecode.replace("%23", "#"));
     }
-    
   }
-  
 
+  /** NoopHistoryTokenEncoder does not perform any encoding. */
+  private static class NoopHistoryTokenEncoder extends HistoryTokenEncoder {
 
-  /**
-   * NoopHistoryTokenEncoder does not perform any encoding.
-   */
-  private static class NoopHistoryTokenEncoder
-      extends HistoryTokenEncoder {
-    
     @Override
     String encode(String toEncode) {
       return toEncode;
     }
-    
+
     @Override
     String decode(String toDecode) {
       return toDecode;
     }
-    
   }
-  
 }
