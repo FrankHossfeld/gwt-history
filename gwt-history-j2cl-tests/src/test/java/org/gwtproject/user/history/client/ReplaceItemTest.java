@@ -17,6 +17,7 @@ package org.gwtproject.user.history.client;
 
 import static org.junit.Assert.fail;
 
+import com.google.j2cl.junit.apt.J2clTestInput;
 import elemental2.promise.Promise;
 import org.gwtproject.event.logical.shared.ValueChangeEvent;
 import org.gwtproject.event.logical.shared.ValueChangeHandler;
@@ -25,43 +26,33 @@ import org.gwtproject.timer.client.Timer;
 import org.junit.After;
 import org.junit.Test;
 
-/**
- * Tests for the history system.
- *
- * <p>TODO: find a way to test unescaping of the initial hash value.
- */
-// @J2clTestInput(HistoryTest.class)
-public class HistoryTest {
-
-  private HandlerRegistration handlerRegistration;
+/** Tests for the history system. */
+@J2clTestInput(ReplaceItemTest.class)
+public class ReplaceItemTest {
 
   private Timer timer;
 
-  /*
-   * Ensure that non-url-safe strings (such as those containing spaces) are
-   * encoded/decoded correctly, and that programmatic 'back' works.
-   */
-  @Test(timeout = 10000)
-  public Promise<Void> testHistory() {
+  private HandlerRegistration handlerRegistration;
+
+  private void addHistoryListenerImpl(ValueChangeHandler<String> handler) {
+    this.handlerRegistration = History.addValueChangeHandler(handler);
+  }
+
+  /** Verify that no events are issued via newItem if there were not reqeuested. */
+  @Test(timeout = 5000)
+  public Promise<Void> testReplaceItem() {
     return new Promise<>(
         (resolve, reject) -> {
           /*
-           * Sentinel token which should only be seen if tokens are lost during the
-           * rest of the test. Without this, History.back() might send the browser too
-           * far back, i.e. back to before the web app containing our test module.
+           * Sentinel token which should only be seen if tokens are lost during the rest of the test.
+           * Without this, History.back() might send the browser too far back, i.e. back to before the web
+           * app containing our test module.
            */
           History.newItem("if-you-see-this-then-history-went-back-too-far");
 
           final String historyToken1 = "token1";
           final String historyToken2 = "token 2";
-          Timer timer =
-              new Timer() {
-
-                @Override
-                public void run() {
-                  History.newItem(historyToken1);
-                }
-              };
+          final String historyToken3 = "token3";
 
           addHistoryListenerImpl(
               new ValueChangeHandler<String>() {
@@ -90,28 +81,42 @@ public class HistoryTest {
                         }
 
                         state = 2;
-                        History.back();
+                        History.replaceItem(historyToken3, true);
                         break;
                       }
 
                     case 2:
                       {
+                        if (!historyToken.equals(historyToken3)) {
+                          fail("Expecting token '" + historyToken3 + "', but got: " + historyToken);
+                        }
+                        state = 3;
+                        History.back();
+                        break;
+                      }
+
+                    case 3:
+                      {
                         if (!historyToken.equals(historyToken1)) {
                           fail("Expecting token '" + historyToken1 + "', but got: " + historyToken);
                         }
                         resolve.onInvoke((Void) null);
-                        break;
                       }
                   }
                 }
               });
 
+          History.newItem(historyToken1);
+          timer =
+              new Timer() {
+
+                @Override
+                public void run() {
+                  History.newItem(historyToken1);
+                }
+              };
           timer.schedule(500);
         });
-  }
-
-  private void addHistoryListenerImpl(ValueChangeHandler<String> handler) {
-    this.handlerRegistration = History.addValueChangeHandler(handler);
   }
 
   @After
